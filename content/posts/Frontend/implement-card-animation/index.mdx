@@ -1,0 +1,149 @@
+---
+title: Framer Motion으로 생동감 있는 카드 애니메이션 만들기
+date: 2026-01-25
+category: Frontend
+series: Next.js 블로그 구축기
+description: Framer Motion을 활용하여 Staggered Entrance 효과와 마우스 커서를 따라다니는 Spotlight 효과를 구현하는 방법을 소개합니다.
+tags: ["Next.js", "Framer Motion", "Animation", "Tailwind CSS"]
+published: true
+---
+
+# 카드 애니메이션으로 사용자 경험 향상하기
+
+정적인 그리드 리스트는 자칫 지루해 보일 수 있습니다. 이번 글에서는 **Framer Motion**을 활용하여 블로그 글 목록에 생동감을 불어넣는 두 가지 핵심 애니메이션 기술을 공유합니다.
+
+1. **Staggered Entrance**: 카드들이 순차적으로 나타나는 등장 효과
+2. **Spotlight Effect**: 마우스 움직임에 반응하는 고급스러운 조명 효과
+
+## 1. Staggered Entrance (순차 등장 효과)
+
+사용자가 페이지에 진입했을 때, 콘텐츠가 한 번에 "팍" 뜨는 것보다 부드럽게 하나씩 나타나는 것이 훨씬 고급스럽습니다. Framer Motion의 `variants`와 `staggerChildren`을 사용하면 이를 매우 쉽게 구현할 수 있습니다.
+
+### PostList 구현
+
+부모 컨테이너(`container`)와 자식 아이템(`item`)에 각각 애니메이션 상태를 정의합니다.
+
+```tsx showLineNumbers
+// components/post-list.tsx
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1, // 0.1초 간격으로 자식 요소 실행
+    },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 20 }, // 아래에서 투명하게 시작
+  show: { opacity: 1, y: 0 }, // 제자리로 올라오며 불투명해짐
+};
+
+export function PostList({ posts }: PostListProps) {
+  return (
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {posts.map((post) => (
+        <motion.div key={post.slug} variants={item} className="h-full">
+          <SpotlightCard>{/* ... 카드 내용 ... */}</SpotlightCard>
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+}
+```
+
+이렇게 하면 `PostList`가 렌더링될 때 각 카드가 0.1초 간격으로 아래에서 위로 부드럽게 떠오릅니다.
+
+## 2. Spotlight Effect (스포트라이트 효과)
+
+요즘 모던 웹 디자인에서 유행하는 "마우스를 따라다니는 조명" 효과, 일명 **Spotlight Effect**입니다. 이 효과는 정적인 카드를 훨씬 인터랙티브하게 만들어줍니다.
+
+원리는 간단합니다.
+
+1. 마우스의 현재 좌표(X, Y)를 추적합니다.
+2. 해당 좌표를 중심으로 CSS `radial-gradient`를 그립니다.
+3. 이를 카드의 `background`나 `border`에 적용합니다.
+
+### SpotlightCard 구현
+
+`useMotionValue`와 `useMotionTemplate`을 사용하여 성능 저하 없이 마우스 좌표를 CSS 변수처럼 활용합니다.
+
+```tsx showLineNumbers
+// components/ui/spotlight-card.tsx
+import { motion, useMotionTemplate, useMotionValue } from "framer-motion";
+import { MouseEvent } from "react";
+import { cn } from "@/lib/utils";
+
+export function SpotlightCard({
+  children,
+  className,
+  ...props
+}: SpotlightCardProps) {
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  function handleMouseMove({ currentTarget, clientX, clientY }: MouseEvent) {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    // 카드의 왼쪽 상단을 (0,0)으로 하는 상대 좌표 계산
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  }
+
+  return (
+    <div
+      className={cn(
+        "group relative rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-200 dark:bg-neutral-800 overflow-hidden",
+        className,
+      )}
+      onMouseMove={handleMouseMove}
+      {...props}
+    >
+      {/* 1. 마우스를 따라다니는 스포트라이트 효과 */}
+      <motion.div
+        className="pointer-events-none absolute -inset-px rounded-xl opacity-0 transition duration-300 group-hover:opacity-100 z-30"
+        style={{
+          background: useMotionTemplate`
+            radial-gradient(
+              650px circle at ${mouseX}px ${mouseY}px,
+              rgba(255, 255, 255, 0.1),
+              transparent 80%
+            )
+          `,
+        }}
+      />
+
+      {/* 2. 내부 콘텐츠 영억 (배경색으로 덮어씌움) */}
+      <div className="relative h-full z-20 rounded-[9px] bg-white dark:bg-[#1C1C1F] overflow-hidden">
+        {children}
+      </div>
+    </div>
+  );
+}
+```
+
+### 트릭: Border 효과 내기
+
+위 코드에서 자세히 보면, `SpotlightCard`의 최상위 `div`는 배경색(`bg-neutral-800`)을 가지고 있고, 내부 콘텐츠 영역은 조금 더 작은 크기나 `padding`을 가진 것처럼 보일 수 있는데, 실제로는 **Spotlight Gradient** 레이어가 최상위에 오버레이됩니다.
+
+더 멋진 **"빛나는 테두리"** 효과를 위해 저는 다음과 같은 트릭을 추가했습니다:
+
+1. 카드 전체(테두리 포함)에 마우스를 따라다니는 그라디언트를 적용합니다.
+2. 카드 **내부**를 `bg-white` (또는 다크모드 색상)로 살짝 덮습니다 (`inset-[2px]` 등 활용).
+3. 이렇게 하면 카드 **가장자리 2px**만 그라디언트의 영향을 받아 빛나는 것처럼 보입니다.
+
+```tsx
+{
+  /* Inner Content Mask - 테두리 안쪽을 가려서 테두리만 빛나게 함 */
+}
+<div className="absolute inset-[2px] rounded-[9px] bg-white dark:bg-[#1C1C1F] z-10" />;
+```
+
+## 마치며
+
+이 두 가지 애니메이션만 적용해도 웹사이트가 훨씬 더 "살아있는" 느낌을 줍니다. 특히 Framer Motion은 React 생태계에서 애니메이션을 다루는 가장 직관적이고 강력한 도구 중 하나입니다. 여러분의 프로젝트에도 꼭 한번 적용해보세요!

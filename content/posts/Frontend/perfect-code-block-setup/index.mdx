@@ -1,0 +1,131 @@
+---
+title: Next.js 블로그에 다크모드 지원하는 완벽한 코드 블록 만들기
+description: rehype-pretty-code와 Velite를 사용하여 다크 모드/라이트 모드 전환 시 문법 강조(Syntax Highlighting)가 깨지지 않고 완벽하게 지원되는 코드 블록을 구현하는 방법을 상세히 알아봅니다.
+date: 2026-01-25
+category: Frontend
+tags: ["Next.js", "Velite", "Rehype", "Tailwind CSS", "Dark Mode"]
+published: true
+---
+
+블로그를 만들면서 가장 공을 들이게 되는 부분 중 하나가 바로 **"코드 블록"**입니다. 개발자 블로그에서 코드는 단순한 텍스트가 아니라, 정보의 핵심이기 때문입니다.
+
+하지만 Next.js, MDX, Tailwind CSS, 그리고 다크 모드를 모두 함께 사용하다 보면 꽤 골치 아픈 문제들을 마주하게 됩니다.
+
+1.  다크 모드로 전환했는데 코드 블록 색상이 안 바뀐다.
+2.  인라인 코드(`Code`)가 안 보이거나 스타일이 깨진다.
+3.  테마를 바꿨더니 문법 강조(Syntax Highlighting)가 다 사라져 버린다.
+
+이번 글에서는 제가 겪었던 이 모든 삽질을 끝내고, **"완벽한 코드 블록"**을 구현한 과정을 공유합니다.
+
+## 1. Velite & Rehype Pretty Code 설정
+
+먼저 가장 기본이 되는 `velite.config.ts` 설정입니다. 여기서 중요한 포인트는 **테마 선택**입니다.
+GitHub 테마도 좋지만, 가독성을 위해 **VS Code 기본 테마**(`light-plus`, `dark-plus`)를 사용하는 것을 강력 추천합니다.
+
+```typescript title="velite.config.ts"
+import { defineConfig, s } from "velite";
+import rehypePrettyCode from "rehype-pretty-code";
+
+export default defineConfig({
+  // ...
+  mdx: {
+    rehypePlugins: [
+      [
+        rehypePrettyCode,
+        {
+          // VS Code와 동일한 테마 사용 (가독성 UP)
+          theme: {
+            light: "light-plus",
+            dark: "dark-plus",
+          },
+        },
+      ],
+    ],
+  },
+});
+```
+
+## 2. CSS 변수를 활용한 스타일링 (핵심)
+
+`rehype-pretty-code`는 최근 버전에서 **CSS 변수**를 사용하여 테마 색상을 관리하는 방식을 지원합니다. 이를 잘 활용하면 복잡한 미디어 쿼리 없이도 깔끔하게 테마를 전환할 수 있습니다.
+
+하지만 Tailwind Typography 플러그인이 기본 스타일을 강제하기 때문에, 이를 덮어쓰기 위한 **커스텀 CSS**가 필수적입니다.
+
+`app/globals.css`에 다음 코드를 추가합니다.
+
+### 2-1. 코드 블록 (Block Code) 스타일링
+
+코드 블록(`pre`)은 `rehype-pretty-code`가 제공하는 변수(`--shiki-*`)를 사용하여 배경색과 글자색을 제어합니다.
+
+```css title="app/globals.css"
+/* 1. 코드 블록 (Pre) - Shiki CSS 변수 사용 */
+.prose pre {
+  background-color: var(--shiki-light-bg) !important;
+  color: var(--shiki-light) !important;
+}
+
+/* 문법 강조(Syntax Highlighting)가 깨지지 않도록 span에도 변수 적용 */
+.prose pre span {
+  color: var(--shiki-light) !important;
+}
+
+/* 다크 모드 오버라이드 */
+html.dark .prose pre {
+  background-color: var(--shiki-dark-bg) !important;
+  color: var(--shiki-dark) !important;
+}
+
+/* 다크 모드에서도 문법 강조 유지 */
+html.dark .prose pre span {
+  color: var(--shiki-dark) !important;
+}
+```
+
+> **💡 중요 포인트:** `.prose pre span` 선택자를 통해 `span` 요소의 색상까지 강제해야 문법 강조가 사라지지 않고 제대로 나타납니다!
+
+### 2-2. 인라인 코드 (Inline Code) 스타일링
+
+인라인 코드는 문법 강조가 필요 없는 경우가 많고, 배경색 때문에 글자가 안 보이는 문제가 자주 발생합니다. 그래서 인라인 코드는 `shiki` 변수 대신 **프로젝트의 전역 테마 색상**을 사용하는 것이 훨씬 깔끔합니다.
+
+```css title="app/globals.css"
+/* 2. 인라인 코드 (Code NOT in Pre) */
+.prose :not(pre) > code {
+  /* 항상 잘 보이도록 muted(회색) 배경 사용 */
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+/* Tailwind Typography가 자동으로 붙이는 백틱(`) 제거 */
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+  content: none !important;
+}
+```
+
+### 2-3. 중복 생성 방지용 처리
+
+마지막으로, `rehype-pretty-code`가 간혹 테마별로 블록을 두 개씩 생성하는 경우를 대비해 숨김 처리를 추가해줍니다.
+
+```css title="app/globals.css"
+/* 3. 폴백(Fallback) 가시성 로직 */
+html.dark pre[data-theme="light"] {
+  display: none !important;
+}
+
+html:not(.dark) pre[data-theme="dark"] {
+  display: none !important;
+}
+```
+
+## 마무리
+
+이제 여러분의 블로그는:
+
+1.  **라이트/다크 모드** 전환 시 코드 블록 색상이 즉시 바뀝니다.
+2.  **인라인 코드**가 본문과 잘 어우러지며 선명하게 보입니다.
+3.  **VS Code 수준의 고퀄리티 문법 강조**를 제공합니다.
+
+작은 디테일이지만, 이런 설정들이 모여 읽기 좋고 전문적인 기술 블로그가 완성됩니다. 해피 코딩! 🚀

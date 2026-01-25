@@ -1,0 +1,61 @@
+---
+title: Tailwind CSS v4에서 Typography 플러그인으로 MDX 스타일링하기
+description: Tailwind CSS는 기본 스타일을 초기화하기 때문에 마크다운 콘텐츠가 밋밋하게 보일 수 있습니다. v4에서 Typography 플러그인을 설정하여 이 문제를 깔끔하게 해결하는 방법을 알아봅니다.
+date: 2026-01-25
+category: Frontend
+tags: ["Next.js", "Tailwind CSS", "Typography", "MDX"]
+published: true
+---
+
+블로그를 개발하다 보면 마주치는 흔한 문제가 있습니다. 신나게 MDX 파싱 로직을 구현하고 첫 글을 띄웠는데, 제목과 본문이 구분되지 않고 폰트 크기도 똑같은 맹물 같은 화면을 마주하게 되는 것이죠.
+
+이는 Tailwind CSS의 **Preflight** 기능 때문입니다. Tailwind는 브라우저 간의 스타일 불일치를 없애기 위해 기본 HTML 태그(h1, p, ul 등)의 스타일을 모두 초기화(reset)합니다.
+
+이 문제를 해결하기 위해 Tailwind CSS 팀은 [`@tailwindcss/typography`](https://github.com/tailwindlabs/tailwindcss-typography)라는 공식 플러그인을 제공합니다. 이 글에서는 Tailwind CSS v4 환경에서 이 플러그인을 설정하고 적용하는 방법을 공유합니다.
+
+## 1. 패키지 설치
+
+먼저 프로젝트에 플러그인을 설치해야 합니다.
+
+```bash
+yarn add -D @tailwindcss/typography
+```
+
+## 2. 플러그인 설정 (Tailwind CSS v4)
+
+Tailwind CSS v4는 설정 방식이 이전 버전과 조금 달라졌습니다. `tailwind.config.js` 파일 대신 CSS 파일 자체에서 설정을 관리하는 것이 기본입니다.
+
+`app/globals.css` 파일을 열고 다음과 같이 `@plugin` 디렉티브를 추가합니다.
+
+```css title="app/globals.css"
+@import "tailwindcss";
+@plugin "@tailwindcss/typography"; /* 플러그인 추가 */
+@import "tw-animate-css";
+
+/* ... 기타 설정 ... */
+```
+
+기존 v3 설정 방식(`plugins: [require('@tailwindcss/typography')]`)보다 훨씬 간결해졌습니다.
+
+## 3. prose 클래스 적용
+
+플러그인 설정이 끝났으면, 이제 스타일링하고 싶은 콘텐츠의 부모 요소에 `prose` 클래스를 추가하면 됩니다.
+
+```tsx title="app/blog/[...slug]/page.tsx"
+<article className="container max-w-3xl mx-auto py-6 lg:py-10">
+  {/* ... 제목 및 메타데이터 ... */}
+
+  <div className="prose dark:prose-invert max-w-none">
+    <MDXContent code={post.body} />
+  </div>
+</article>
+```
+
+여기서 사용된 핵심 클래스는 두 가지입니다:
+
+- **`prose`**: 기본적인 타이포그래피 스타일(적절한 폰트 크기, 줄 간격, 마진 등)을 자식 요소들에 적용합니다.
+- **`dark:prose-invert`**: 다크 모드일 때 글자색을 반전시켜 어두운 배경에서도 가독성을 확보합니다. `prose`는 기본적으로 어두운 글자색을 사용하기 때문에 다크 모드에서는 잘 보이지 않을 수 있는데, 이 유틸리티 하나로 완벽하게 해결됩니다.
+
+## 마무리
+
+이제 `h1`부터 `h6`까지의 헤딩, 본문, 리스트, 인용구, 코드 블록 등이 아름답게 렌더링되는 것을 볼 수 있습니다. Tailwind CSS의 유연함과 Typography 플러그인의 편리함을 조합하면, 복잡한 CSS 작성 없이도 완성도 높은 블로그 아티클 페이지를 뚝딱 만들어낼 수 있습니다.

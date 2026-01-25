@@ -1,6 +1,6 @@
 export default function AboutPage() {
   return (
-    <div className="container max-w-3xl py-6 lg:py-10">
+    <div className="container mx-auto max-w-3xl py-6 lg:py-10">
       <div className="mb-8 flex flex-col items-start gap-4 border-b pb-8">
         <h1 className="text-3xl leading-tight font-bold tracking-tighter md:text-5xl lg:leading-[1.1]">
           About

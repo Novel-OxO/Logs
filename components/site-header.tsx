@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ModeToggle } from '@/components/mode-toggle';
 import { cn } from '@/lib/utils';
+import { ScrollProgress } from '@/components/scroll-progress';
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -86,6 +87,7 @@ export function SiteHeader() {
           </nav>
         </div>
       </div>
+      <ScrollProgress />
     </header>
   );
 }

@@ -1,5 +1,6 @@
 import * as runtime from 'react/jsx-runtime';
 import { useMemo, createElement } from 'react';
+import { CodeBlock } from '@/components/code-block';
 
 const useMDXComponent = (code: string) => {
   return useMemo(() => {
@@ -13,7 +14,13 @@ interface MDXProps {
   components?: Record<string, React.ComponentType>;
 }
 
-export function MDXContent({ code, components }: MDXProps) {
+const components = {
+  pre: CodeBlock,
+};
+
+export function MDXContent({ code, components: userComponents }: MDXProps) {
   const Component = useMDXComponent(code);
-  return createElement(Component, { components });
+  return createElement(Component, {
+    components: { ...components, ...userComponents },
+  });
 }

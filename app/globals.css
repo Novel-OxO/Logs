@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
@@ -79,6 +80,7 @@
   --sidebar-accent-foreground: #111111;
   --sidebar-border: #e4e4e7;
   --sidebar-ring: #ffb400;
+  --spotlight-color: rgba(0, 0, 0, 0.02);
 }
 
 .dark {
@@ -113,6 +115,7 @@
   --sidebar-accent-foreground: #ffb400;
   --sidebar-border: #333333;
   --sidebar-ring: #ffb400;
+  --spotlight-color: rgba(255, 255, 255, 0.1);
 }
 
 @layer base {
@@ -122,4 +125,76 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Rehype Pretty Code Dual Theme */
+
+/* 1. Code Blocks (Pre) - Use Shiki CSS Variables for Theme Switching */
+/* This ensures proper theme switching by forcing Shiki colors */
+/* 1. Code Blocks (Pre) - Use Shiki CSS Variables for Theme Switching */
+/* This ensures proper theme switching by forcing Shiki colors */
+.prose pre {
+  background-color: var(--shiki-light-bg) !important;
+  color: var(--shiki-light) !important;
+}
+
+/* Force spans to use the light theme variable by default */
+.prose pre span {
+  color: var(--shiki-light) !important;
+}
+
+.prose pre code {
+  color: inherit !important;
+  background-color: transparent !important;
+}
+
+/* Dark Mode Overrides for Blocks */
+html.dark .prose pre {
+  background-color: var(--shiki-dark-bg) !important;
+  color: var(--shiki-dark) !important;
+}
+
+/* Force spans to use the DARK theme variable in dark mode */
+html.dark .prose pre span {
+  color: var(--shiki-dark) !important;
+}
+
+html.dark .prose pre code {
+  color: inherit !important;
+}
+
+/* 2. Inline Code Styling (Code NOT in Pre) */
+/* Use global theme variables to ensure visibility in all modes */
+.prose :not(pre) > code {
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+/* Remove backticks from inline code */
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after {
+  content: none !important;
+}
+
+/* Add scroll margin for headings to account for fixed header */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  scroll-margin-top: 100px; /* Adjust based on header height + padding */
+}
+
+/* 3. Fallback Visibility Logic */
+/* Hide duplicative blocks if they are generated separately */
+html.dark pre[data-theme='light'] {
+  display: none !important;
+}
+
+html:not(.dark) pre[data-theme='dark'] {
+  display: none !important;
 }
