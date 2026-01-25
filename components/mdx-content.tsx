@@ -1,5 +1,5 @@
-import * as runtime from "react/jsx-runtime";
-import { useMemo, createElement } from "react";
+import * as runtime from 'react/jsx-runtime';
+import { useMemo, createElement } from 'react';
 
 const useMDXComponent = (code: string) => {
   return useMemo(() => {

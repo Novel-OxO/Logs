@@ -1,7 +1,7 @@
-import { notFound } from "next/navigation";
-import { posts } from "@/velite";
-import { MDXContent } from "@/components/mdx-content";
-import { Metadata } from "next";
+import { notFound } from 'next/navigation';
+import { posts } from '@/velite';
+import { MDXContent } from '@/components/mdx-content';
+import { Metadata } from 'next';
 
 interface PostPageProps {
   params: Promise<{
@@ -10,14 +10,12 @@ interface PostPageProps {
 }
 
 async function getPostFromParams(params: { slug: string[] }) {
-  const slug = params.slug.join("/");
+  const slug = params.slug.join('/');
   const post = posts.find((post) => post.slug === slug);
   return post;
 }
 
-export async function generateMetadata(
-  props: PostPageProps
-): Promise<Metadata> {
+export async function generateMetadata(props: PostPageProps): Promise<Metadata> {
   const params = await props.params;
   const post = await getPostFromParams(params);
 
@@ -35,7 +33,7 @@ export async function generateStaticParams() {
   return posts
     .filter((post) => post.published)
     .map((post) => ({
-      slug: post.slug.split("/"),
+      slug: post.slug.split('/'),
     }));
 }
 
@@ -49,27 +47,27 @@ export default async function PostPage(props: PostPageProps) {
 
   return (
     <article className="container max-w-3xl py-6 lg:py-10">
-      <div className="flex flex-col items-start gap-4 border-b pb-8 mb-8">
-        <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-5xl lg:leading-[1.1]">
+      <div className="mb-8 flex flex-col items-start gap-4 border-b pb-8">
+        <h1 className="text-3xl leading-tight font-bold tracking-tighter md:text-5xl lg:leading-[1.1]">
           {post.title}
         </h1>
-        <div className="flex gap-4 items-center">
+        <div className="flex items-center gap-4">
           {post.date && (
-            <time
-              dateTime={post.date}
-              className="text-sm text-muted-foreground"
-            >
+            <time dateTime={post.date} className="text-muted-foreground text-sm">
               Published on {new Date(post.date).toLocaleDateString()}
             </time>
           )}
           {post.tags && post.tags.length > 0 && (
-             <div className="flex gap-2">
-                {post.tags.map(tag => (
-                    <span key={tag} className="text-sm text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
-                        {tag}
-                    </span>
-                ))}
-             </div>
+            <div className="flex gap-2">
+              {post.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-muted-foreground bg-muted rounded-md px-2 py-0.5 text-sm"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
           )}
         </div>
       </div>
