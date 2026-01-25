@@ -33,7 +33,7 @@ export default defineConfig({
           return {
             ...data,
             slug,
-            url: `/posts/${slug}`,
+            url: `/blog/${slug}`,
           };
         }),
     },

@@ -1,0 +1,81 @@
+import { notFound } from "next/navigation";
+import { posts } from "@/velite";
+import { MDXContent } from "@/components/mdx-content";
+import { Metadata } from "next";
+
+interface PostPageProps {
+  params: Promise<{
+    slug: string[];
+  }>;
+}
+
+async function getPostFromParams(params: { slug: string[] }) {
+  const slug = params.slug.join("/");
+  const post = posts.find((post) => post.slug === slug);
+  return post;
+}
+
+export async function generateMetadata(
+  props: PostPageProps
+): Promise<Metadata> {
+  const params = await props.params;
+  const post = await getPostFromParams(params);
+
+  if (!post) {
+    return {};
+  }
+
+  return {
+    title: post.title,
+    description: post.description,
+  };
+}
+
+export async function generateStaticParams() {
+  return posts
+    .filter((post) => post.published)
+    .map((post) => ({
+      slug: post.slug.split("/"),
+    }));
+}
+
+export default async function PostPage(props: PostPageProps) {
+  const params = await props.params;
+  const post = await getPostFromParams(params);
+
+  if (!post || !post.published) {
+    notFound();
+  }
+
+  return (
+    <article className="container max-w-3xl py-6 lg:py-10">
+      <div className="flex flex-col items-start gap-4 border-b pb-8 mb-8">
+        <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-5xl lg:leading-[1.1]">
+          {post.title}
+        </h1>
+        <div className="flex gap-4 items-center">
+          {post.date && (
+            <time
+              dateTime={post.date}
+              className="text-sm text-muted-foreground"
+            >
+              Published on {new Date(post.date).toLocaleDateString()}
+            </time>
+          )}
+          {post.tags && post.tags.length > 0 && (
+             <div className="flex gap-2">
+                {post.tags.map(tag => (
+                    <span key={tag} className="text-sm text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
+                        {tag}
+                    </span>
+                ))}
+             </div>
+          )}
+        </div>
+      </div>
+      <div className="prose dark:prose-invert max-w-none">
+        <MDXContent code={post.body} />
+      </div>
+    </article>
+  );
+}

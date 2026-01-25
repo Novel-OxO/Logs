@@ -18,10 +18,6 @@ export function SiteHeader() {
 
   const routes = [
     {
-      href: "/posts",
-      label: "Blog",
-    },
-    {
       href: "/about",
       label: "About",
     },
@@ -32,9 +28,9 @@ export function SiteHeader() {
       <div className="container mx-auto px-4 flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Package2 className="h-6 w-6" />
+            <Package2 className="h-6 w-6 text-primary" />
             <span className="hidden font-bold sm:inline-block">
-              Dev Log
+              Dev <span className="text-primary">Log</span>
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -43,9 +39,9 @@ export function SiteHeader() {
                 key={route.href}
                 href={route.href}
                 className={cn(
-                  "transition-colors hover:text-foreground/80",
+                  "transition-colors hover:text-primary",
                   pathname?.startsWith(route.href)
-                    ? "text-foreground"
+                    ? "text-primary"
                     : "text-foreground/60"
                 )}
               >
@@ -69,8 +65,8 @@ export function SiteHeader() {
               href="/"
               className="flex items-center"
             >
-              <Package2 className="mr-2 h-4 w-4" />
-              <span className="font-bold">Dev Log</span>
+              <Package2 className="mr-2 h-4 w-4 text-primary" />
+              <span className="font-bold">Dev <span className="text-primary">Log</span></span>
             </Link>
             <nav className="mt-8 flex flex-col gap-4">
               {routes.map((route) => (
@@ -78,8 +74,8 @@ export function SiteHeader() {
                   key={route.href}
                   href={route.href}
                   className={cn(
-                    "text-foreground/70 transition-colors hover:text-foreground",
-                    pathname?.startsWith(route.href) && "text-foreground"
+                    "text-foreground/70 transition-colors hover:text-primary",
+                    pathname?.startsWith(route.href) && "text-primary"
                   )}
                 >
                   {route.label}
