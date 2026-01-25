@@ -1,6 +1,7 @@
 ---
 title: Next.js 16과 Tailwind CSS v4로 다크 모드 구현하기 (feat. next-themes)
 category: Frontend
+image: "./thumbnail.png"
 date: 2026-01-25
 description: next-themes와 shadcn/ui를 사용하여 Next.js 애플리케이션에 완벽한 다크 모드를 구현하는 방법을 알아봅니다.
 tags: [Next.js, Tailwind CSS, Dark Mode, shadcn/ui]
@@ -26,10 +27,10 @@ Next.js의 App Router 환경에서는 클라이언트 컴포넌트와 서버 컴
 
 ```tsx
 // components/theme-provider.tsx
-'use client';
+"use client";
 
-import * as React from 'react';
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
+import * as React from "react";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 export function ThemeProvider({
   children,
@@ -45,7 +46,7 @@ export function ThemeProvider({
 
 ```tsx
 // app/layout.tsx
-import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeProvider } from "@/components/theme-provider";
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
@@ -74,19 +75,19 @@ export default function RootLayout({ children }: RootLayoutProps) {
 
 ```tsx
 // components/mode-toggle.tsx
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Moon, Sun } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import * as React from "react";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 
 export function ModeToggle() {
   const { setTheme } = useTheme();
@@ -101,9 +102,15 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          System
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
