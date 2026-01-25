@@ -1,40 +1,33 @@
-"use client"
+'use client';
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Menu, Package2 } from "lucide-react"
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Menu, Package2 } from 'lucide-react';
 
-import { Button } from "@/components/ui/button"
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet"
-import { ModeToggle } from "@/components/mode-toggle"
-import { cn } from "@/lib/utils"
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { ModeToggle } from '@/components/mode-toggle';
+import { cn } from '@/lib/utils';
+import { ScrollProgress } from '@/components/scroll-progress';
 
 export function SiteHeader() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const routes = [
     {
-      href: "/posts",
-      label: "Blog",
+      href: '/about',
+      label: 'About',
     },
-    {
-      href: "/about",
-      label: "About",
-    },
-  ]
+  ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 flex h-14 items-center">
+    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
+      <div className="container mx-auto flex h-14 items-center px-4">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Package2 className="h-6 w-6" />
+            <Package2 className="text-primary h-6 w-6" />
             <span className="hidden font-bold sm:inline-block">
-              Dev Log
+              Dev <span className="text-primary">Log</span>
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -43,10 +36,8 @@ export function SiteHeader() {
                 key={route.href}
                 href={route.href}
                 className={cn(
-                  "transition-colors hover:text-foreground/80",
-                  pathname?.startsWith(route.href)
-                    ? "text-foreground"
-                    : "text-foreground/60"
+                  'hover:text-primary transition-colors',
+                  pathname?.startsWith(route.href) ? 'text-primary' : 'text-foreground/60',
                 )}
               >
                 {route.label}
@@ -65,12 +56,11 @@ export function SiteHeader() {
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="pr-0">
-            <Link
-              href="/"
-              className="flex items-center"
-            >
-              <Package2 className="mr-2 h-4 w-4" />
-              <span className="font-bold">Dev Log</span>
+            <Link href="/" className="flex items-center">
+              <Package2 className="text-primary mr-2 h-4 w-4" />
+              <span className="font-bold">
+                Dev <span className="text-primary">Log</span>
+              </span>
             </Link>
             <nav className="mt-8 flex flex-col gap-4">
               {routes.map((route) => (
@@ -78,8 +68,8 @@ export function SiteHeader() {
                   key={route.href}
                   href={route.href}
                   className={cn(
-                    "text-foreground/70 transition-colors hover:text-foreground",
-                    pathname?.startsWith(route.href) && "text-foreground"
+                    'text-foreground/70 hover:text-primary transition-colors',
+                    pathname?.startsWith(route.href) && 'text-primary',
                   )}
                 >
                   {route.label}
@@ -97,6 +87,7 @@ export function SiteHeader() {
           </nav>
         </div>
       </div>
+      <ScrollProgress />
     </header>
-  )
+  );
 }

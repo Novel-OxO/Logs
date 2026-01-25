@@ -1,14 +1,14 @@
+import { posts } from '@/velite';
+import { PostList } from '@/components/post-list';
+
 export default function Home() {
+  const displayPosts = posts
+    .filter((post) => post.published)
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
   return (
-    <div className="container mx-auto px-4 py-10">
-      <section className="mx-auto flex max-w-[980px] flex-col items-start gap-2 pb-8 pt-8 md:pt-12">
-        <h1 className="text-3xl font-extrabold leading-tight tracking-tighter md:text-5xl">
-          Welcome to Dev Log
-        </h1>
-        <p className="max-w-[700px] text-lg text-muted-foreground">
-          A developer blog built with Next.js, Tailwind CSS, and Velite.
-        </p>
-      </section>
+    <div className="container mx-auto max-w-[980px] py-10">
+      {displayPosts?.length > 0 ? <PostList posts={displayPosts} /> : <p>No posts published.</p>}
     </div>
   );
 }

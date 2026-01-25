@@ -1,0 +1,85 @@
+---
+title: 블로그 코드 블록 예쁘게 꾸미기 (Rehype Pretty Code & 다크모드)
+description: 밋밋한 코드 블록에 Syntax Highlighting을 적용하고, 라이트/다크 모드에 맞춰 자동으로 테마가 변경되도록 설정하는 방법을 알아봅니다.
+date: 2026-01-25
+category: Frontend
+image: "./thumbnail.png"
+tags: ["Next.js", "Velite", "Rehype", "Shiki", "Syntax Highlighting"]
+published: true
+---
+
+개발 블로그의 꽃은 뭐니 뭐니 해도 깔끔한 **코드 블록**입니다. 단순히 텍스트만 나열된 코드는 가독성이 떨어져 아무도 읽고 싶어 하지 않죠. 이번 글에서는 `rehype-pretty-code`와 `shiki`를 사용하여 코드 블록에 예쁜 Syntax Highlighting을 입히고, 다크 모드까지 완벽하게 지원하는 방법을 정리합니다.
+
+## 왜 rehype-pretty-code인가?
+
+MDX 생태계에는 `prismjs` 등 다양한 하이라이팅 라이브러리가 있지만, 요즘 대세는 [`rehype-pretty-code`](https://rehype-pretty.pages.dev/)입니다.
+
+- **빌드 타임 렌더링**: 클라이언트에서 JS를 실행해 하이라이팅하는 게 아니라, 빌드 시점에 미리 HTML로 변환하기 때문에 성능이 매우 뛰어납니다.
+- **VS Code와 동일한 엔진**: `shiki`를 기반으로 하여 VS Code에서 보는 것과 똑같은 고퀄리티 테마를 사용할 수 있습니다.
+- **추가 기능**: 라인 하이라이팅, 파일명 표시, 라인 넘버 등 강력한 기능을 기본으로 제공합니다.
+
+## 1. 패키지 설치
+
+먼저 필요한 패키지들을 설치합니다.
+
+```bash
+yarn add -D rehype-pretty-code shiki
+```
+
+## 2. Velite 설정 업데이트 (Dual Theme)
+
+블로그가 라이트 모드와 다크 모드를 모두 지원한다면, 코드 블록도 그에 맞춰 옷을 갈아입어야 합니다. `velite.config.ts`의 `mdx` 설정을 수정하여 두 가지 테마를 모두 정의해 줍니다.
+
+저의 경우 라이트 모드에는 `github-light`, 다크 모드에는 `github-dark` 테마를 사용했습니다.
+
+```typescript title="velite.config.ts"
+import { defineConfig, s } from "velite";
+import rehypePrettyCode from "rehype-pretty-code"; // 플러그인 임포트
+
+export default defineConfig({
+  // ... (기존 설정)
+  mdx: {
+    rehypePlugins: [
+      [
+        rehypePrettyCode,
+        {
+          // light/dark 테마 동시 설정
+          theme: {
+            light: "github-light",
+            dark: "github-dark",
+          },
+        },
+      ],
+    ],
+  },
+});
+```
+
+## 3. CSS로 테마 스위칭 구현
+
+이제 HTML에는 두 가지 테마의 코드가 모두 생성되지만, 사용자에게는 현재 모드에 맞는 하나만 보여줘야 합니다. `app/globals.css`에 CSS를 추가하여 이를 제어합니다.
+
+`next-themes`를 사용하고 있다면 `html` 태그에 `dark` 클래스가 붙는 것을 이용할 수 있습니다.
+
+```css title="app/globals.css"
+/* Rehype Pretty Code Dual Theme 제어 */
+
+/* 다크 모드일 때: 라이트 테마 숨김 */
+html.dark pre[data-theme="light"],
+html.dark code[data-theme="light"] {
+  display: none;
+}
+
+/* 라이트 모드일 때: 다크 테마 숨김 */
+html:not(.dark) pre[data-theme="dark"],
+html:not(.dark) code[data-theme="dark"] {
+  display: none;
+}
+```
+
+## 결과 확인
+
+이제 서버를 재시작(`yarn dev`)하고 글을 확인해보세요.
+우측 상단의 테마 토글 버튼을 누를 때마다 코드 블록의 테마도 자연스럽게 `github-light` ↔ `github-dark`로 전환되는 것을 볼 수 있습니다.
+
+작은 디테일이지만, 이런 경험들이 모여 "읽기 좋은 블로그"가 완성됩니다.

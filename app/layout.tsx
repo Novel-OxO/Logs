@@ -1,23 +1,24 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+import { ThemeProvider } from '@/components/theme-provider';
+import { SiteHeader } from '@/components/site-header';
+import { SiteFooter } from '@/components/site-footer';
+import { ScrollToTop } from '@/components/scroll-to-top';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "Dev Log",
-  description: "A developer blog built with Next.js and MDX",
+  title: 'Dev Log',
+  description: 'A developer blog built with Next.js and MDX',
 };
 
 export default function RootLayout({
@@ -28,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-background min-h-screen font-sans antialiased`}
       >
         <ThemeProvider
           attribute="class"
@@ -40,6 +41,7 @@ export default function RootLayout({
             <SiteHeader />
             <main className="flex-1">{children}</main>
             <SiteFooter />
+            <ScrollToTop />
           </div>
         </ThemeProvider>
       </body>
