@@ -1,0 +1,106 @@
+---
+title: Next.js 16에서 Yarn PnP(Berry) 도입하며 겪은 트러블슈팅
+date: 2026-01-25
+category: Frontend
+series: Next.js 블로그 구축기
+description: Yarn Classic에서 Berry PnP로 전환하며 만난 Next.js 16 Turbopack 호환성 문제와 해결 과정을 공유합니다.
+tags: ['Next.js', 'Yarn', 'PnP', 'Berry', 'Troubleshooting']
+published: true
+---
+
+# 프로젝트의 격을 높이는 Yarn PnP 도입기
+
+블로그 프로젝트를 진행하며 패키지 매니저를 **Yarn Classic(v1)**에서 **Yarn Berry(v4)**로 업그레이드했습니다. 단순히 버전만 올리는 것이 아니라, `node_modules`를 제거하고 **Plug'n'Play(PnP)**와 **Zero Installs**를 적용하여 더욱 "고급진" 개발 환경을 구축하고자 했습니다.
+
+하지만 최신 기술들의 조합은 항상 예상치 못한 복병을 동반하죠. 이번 포스팅에서는 Next.js 16 환경에서 Yarn PnP를 도입하며 겪은 트러블슈팅 과정을 정리해 봅니다.
+
+---
+
+## 1. Yarn Berry & PnP 설정
+
+먼저 `corepack`을 활성화하고 최신 Yarn 버전을 설정했습니다.
+
+```bash
+corepack enable
+yarn set version stable
+```
+
+그리고 `.yarnrc.yml` 파일에서 `nodeLinker`를 `pnp`로 설정하여 그 악명 높은 `node_modules` 폴더와 작별을 고했습니다.
+
+```yaml
+# .yarnrc.yml
+nodeLinker: pnp
+enableGlobalCache: false # Zero Installs를 위해 로컬 캐시 활성화
+```
+
+## 2. 첫 번째 복병: Turbopack과 PnP의 불협화음
+
+모든 설정이 순조로울 줄 알았으나, `yarn dev`를 실행하자마자 다음과 같은 에러가 발생했습니다.
+
+```text
+Error: Turbopack build failed with 1 errors:
+./app
+Error: Next.js inferred your workspace root, but it may not be correct.
+We couldn't find the Next.js package (next/package.json) from the project directory...
+```
+
+### 원인 분석
+Next.js 16의 새로운 번들러인 **Turbopack**이 아직 Yarn PnP 환경에서의 루트 감지 및 패키지 해상도(Resolution) 처리를 완벽하게 지원하지 못해 발생하는 이슈였습니다. PnP 환경에서는 패키지가 물리적인 `node_modules`가 아닌 `.yarn/cache` 내부의 zip 파일로 존재하기 때문입니다.
+
+### 해결 시도
+`next.config.ts`의 `experimental.turbo.root` 설정을 통해 루트를 강제로 지정해 보았으나, Turbopack은 여전히 `next/package.json`을 찾지 못했습니다.
+
+## 3. 해결책: 안정적인 Webpack으로 우회
+
+Turbopack이 정식 지원되기 전까지는 가장 확실하고 안정적인 방법인 **Webpack**으로 전환하기로 결정했습니다. 다행히 Next.js는 실행 시 플래그를 통해 번들러를 선택할 수 있습니다.
+
+`package.json`의 스크립트를 다음과 같이 수정했습니다.
+
+```json
+"scripts": {
+  "dev": "velite dev & next dev --webpack",
+  "build": "velite build && next build --webpack"
+}
+```
+
+이 설정 한 줄로 빌드와 개발 서버 모두 정상적으로 작동하기 시작했습니다! 🚀
+
+## 4. 툴링 연동 및 마무리
+
+PnP 환경에서는 IDE와 Git Hook도 세심한 설정이 필요합니다.
+
+### VSCode SDK 설정
+VSCode가 PnP 의존성을 인식할 수 있도록 SDK를 생성해 주어야 합니다.
+```bash
+yarn dlx @yarnpkg/sdks vscode
+```
+
+### Husky & Lint-staged
+기존에 `npx`를 사용하던 Husky hook도 PnP 환경에서 패키지를 바로 찾을 수 있도록 `yarn` 명령어로 교체했습니다.
+
+```bash
+# .husky/pre-commit
+yarn lint-staged
+```
+
+### Zero Installs를 위한 .gitignore
+`.yarn/cache`를 Git에 포함시켜 팀원들이 `yarn install` 없이도 즉시 개발을 시작할 수 있게 했습니다.
+
+```gitignore
+# .gitignore 수정
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+```
+
+---
+
+## 마치며
+
+Yarn PnP 도입은 단기적인 셋업 비용은 들지만, 설치 속도 향상과 의존성 무결성 보장이라는 강력한 이점을 제공합니다. 특히 **Zero Installs**를 통해 "클론 받으면 바로 돌아가는 프로젝트"를 만든 것이 가장 만족스럽네요.
+
+Next.js와 Turbopack이 PnP를 완벽히 지원하는 그날까지, 당분간은 이 **Webpack 우회 전략**이 가장 유효한 가이드가 될 것 같습니다!
