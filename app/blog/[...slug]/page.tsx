@@ -1,7 +1,7 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { posts } from '@/velite';
 import { MDXContent } from '@/components/mdx-content';
-import { Metadata } from 'next';
+import { posts } from '@/velite';
 
 interface PostPageProps {
   params: Promise<{

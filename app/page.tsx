@@ -1,5 +1,5 @@
-import { posts } from '@/velite';
 import { PostList } from '@/components/post-list';
+import { posts } from '@/velite';
 
 export default function Home() {
   const displayPosts = posts

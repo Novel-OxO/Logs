@@ -1,5 +1,5 @@
+import { createElement, useMemo } from 'react';
 import * as runtime from 'react/jsx-runtime';
-import { useMemo, createElement } from 'react';
 import { CodeBlock } from '@/components/code-block';
 
 const useMDXComponent = (code: string) => {

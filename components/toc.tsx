@@ -29,7 +29,9 @@ export function TableOfContents({ toc }: TableOfContentsProps) {
     );
 
     const headings = document.querySelectorAll('h2, h3');
-    headings.forEach((heading) => observer.observe(heading));
+    headings.forEach((heading) => {
+      observer.observe(heading);
+    });
 
     const handleScroll = () => {
       if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100) {
@@ -49,7 +51,9 @@ export function TableOfContents({ toc }: TableOfContentsProps) {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      headings.forEach((heading) => observer.unobserve(heading));
+      headings.forEach((heading) => {
+        observer.unobserve(heading);
+      });
       window.removeEventListener('scroll', handleScroll);
     };
   }, [toc]);
@@ -63,10 +67,10 @@ export function TableOfContents({ toc }: TableOfContentsProps) {
       <p className="mb-4 text-lg font-medium">On This Page</p>
       <div className="border-border/50 relative border-l">
         <ul className="m-0 list-none">
-          {toc.map((item, index) => {
+          {toc.map((item) => {
             const isActive = item.url === `#${activeId}`;
             return (
-              <li key={index} className="mt-0 pt-0">
+              <li key={item.url} className="mt-0 pt-0">
                 <a
                   href={item.url}
                   className={cn(
@@ -80,10 +84,10 @@ export function TableOfContents({ toc }: TableOfContentsProps) {
                 </a>
                 {item.items && item.items.length > 0 && (
                   <ul className="m-0 list-none">
-                    {item.items.map((subItem, subIndex) => {
+                    {item.items.map((subItem) => {
                       const isSubActive = subItem.url === `#${activeId}`;
                       return (
-                        <li key={subIndex} className="mt-0 pt-0">
+                        <li key={subItem.url} className="mt-0 pt-0">
                           <a
                             href={subItem.url}
                             className={cn(

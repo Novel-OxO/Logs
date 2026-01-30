@@ -1,4 +1,4 @@
-function readPackage(pkg, context) {
+function readPackage(pkg, _context) {
   // Allow build scripts for specific packages
   if (pkg.name === 'esbuild' || pkg.name === 'sharp' || pkg.name === 'unrs-resolver') {
     pkg.scripts = pkg.scripts || {};
@@ -9,6 +9,6 @@ function readPackage(pkg, context) {
 
 module.exports = {
   hooks: {
-    readPackage
-  }
+    readPackage,
+  },
 };

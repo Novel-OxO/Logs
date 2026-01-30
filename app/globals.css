@@ -1,6 +1,6 @@
-@import 'tailwindcss';
-@plugin '@tailwindcss/typography';
-@import 'tw-animate-css';
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -134,40 +134,40 @@
 /* 1. Code Blocks (Pre) - Use Shiki CSS Variables for Theme Switching */
 /* This ensures proper theme switching by forcing Shiki colors */
 .prose pre {
-  background-color: var(--shiki-light-bg) !important;
-  color: var(--shiki-light) !important;
+  background-color: var(--shiki-light-bg);
+  color: var(--shiki-light);
 }
 
 /* Force spans to use the light theme variable by default */
 .prose pre span {
-  color: var(--shiki-light) !important;
+  color: var(--shiki-light);
 }
 
 .prose pre code {
-  color: inherit !important;
-  background-color: transparent !important;
+  color: inherit;
+  background-color: transparent;
 }
 
 /* Dark Mode Overrides for Blocks */
 html.dark .prose pre {
-  background-color: var(--shiki-dark-bg) !important;
-  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg);
+  color: var(--shiki-dark);
 }
 
 /* Force spans to use the DARK theme variable in dark mode */
 html.dark .prose pre span {
-  color: var(--shiki-dark) !important;
+  color: var(--shiki-dark);
 }
 
 html.dark .prose pre code {
-  color: inherit !important;
+  color: inherit;
 }
 
 /* 2. Inline Code Styling (Code NOT in Pre) */
 /* Use global theme variables to ensure visibility in all modes */
 .prose :not(pre) > code {
-  background-color: var(--muted) !important;
-  color: var(--foreground) !important;
+  background-color: var(--muted);
+  color: var(--foreground);
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
   font-weight: 500;
@@ -176,7 +176,7 @@ html.dark .prose pre code {
 /* Remove backticks from inline code */
 .prose :not(pre) > code::before,
 .prose :not(pre) > code::after {
-  content: none !important;
+  content: none;
 }
 
 /* Add scroll margin for headings to account for fixed header */
@@ -191,10 +191,10 @@ html.dark .prose pre code {
 
 /* 3. Fallback Visibility Logic */
 /* Hide duplicative blocks if they are generated separately */
-html.dark pre[data-theme='light'] {
-  display: none !important;
+html.dark pre[data-theme="light"] {
+  display: none;
 }
 
-html:not(.dark) pre[data-theme='dark'] {
-  display: none !important;
+html:not(.dark) pre[data-theme="dark"] {
+  display: none;
 }

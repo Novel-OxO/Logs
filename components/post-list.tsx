@@ -1,9 +1,9 @@
 'use client';
 
-import Link from 'next/link';
-import { motion } from 'framer-motion';
 import dayjs from 'dayjs';
+import { motion } from 'framer-motion';
 import { Calendar } from 'lucide-react';
+import Link from 'next/link';
 import { SpotlightCard } from '@/components/ui/spotlight-card';
 
 interface Post {

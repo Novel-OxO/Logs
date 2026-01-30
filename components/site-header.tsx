@@ -1,14 +1,13 @@
 'use client';
 
+import { Menu, Package2 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, Package2 } from 'lucide-react';
-
+import { ModeToggle } from '@/components/mode-toggle';
+import { ScrollProgress } from '@/components/scroll-progress';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { ModeToggle } from '@/components/mode-toggle';
 import { cn } from '@/lib/utils';
-import { ScrollProgress } from '@/components/scroll-progress';
 
 export function SiteHeader() {
   const pathname = usePathname();
