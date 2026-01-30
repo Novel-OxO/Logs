@@ -1,10 +1,9 @@
 'use client';
 
 import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
-import type { MouseEvent } from 'react';
 import { cn } from '@/lib/utils';
 
-interface SpotlightCardProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface SpotlightCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
 
@@ -12,11 +11,7 @@ export function SpotlightCard({ children, className, ...props }: SpotlightCardPr
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  function handleMouseMove({
-    currentTarget,
-    clientX,
-    clientY,
-  }: React.MouseEvent<HTMLButtonElement>) {
+  function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent<HTMLDivElement>) {
     const { left, top } = currentTarget.getBoundingClientRect();
 
     mouseX.set(clientX - left);
@@ -24,7 +19,7 @@ export function SpotlightCard({ children, className, ...props }: SpotlightCardPr
   }
 
   return (
-    <button
+    <div
       className={cn(
         'group text-foreground relative overflow-hidden rounded-xl border border-neutral-200 bg-neutral-200 p-[2px] shadow-sm dark:border-neutral-800 dark:bg-neutral-800',
         className,
@@ -68,6 +63,6 @@ export function SpotlightCard({ children, className, ...props }: SpotlightCardPr
 
       {/* Content */}
       <div className="relative z-20 h-full overflow-hidden rounded-[9px]">{children}</div>
-    </button>
+    </div>
   );
 }
