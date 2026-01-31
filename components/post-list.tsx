@@ -12,16 +12,8 @@ interface Post {
   description?: string;
   date: string;
   url: string;
-  category?: string; // Derived from velite config
-  image?: {
-    src: string;
-    width: number;
-    height: number;
-    blurDataURL?: string;
-    blurWidth?: number;
-    blurHeight?: number;
-  };
-  featured?: boolean;
+  category?: string;
+  thumbnail?: string;
 }
 
 interface PostListProps {
@@ -58,10 +50,9 @@ export function PostList({ posts }: PostListProps) {
               {/* Image Section */}
               <div className="p-2 pb-0">
                 <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-neutral-100 shadow-sm dark:border-neutral-800">
-                  {post.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
+                  {post.thumbnail ? (
                     <img
-                      src={post.image.src}
+                      src={post.thumbnail}
                       alt={post.title}
                       className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />

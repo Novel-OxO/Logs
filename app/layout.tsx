@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { ScrollToTop } from '@/components/scroll-to-top';
 import { SiteFooter } from '@/components/site-footer';
@@ -18,7 +19,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Dev Log',
-  description: 'A developer blog built with Next.js and MDX',
+  description: 'A developer blog powered by Notion',
 };
 
 export default function RootLayout({
@@ -28,6 +29,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {process.env.NEXT_PUBLIC_UMAMI_ID && (
+          <Script
+            defer
+            src={process.env.NEXT_PUBLIC_UMAMI_URL || 'https://cloud.umami.is/script.js'}
+            data-website-id={process.env.NEXT_PUBLIC_UMAMI_ID}
+          />
+        )}
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} bg-background min-h-screen font-sans antialiased`}
       >

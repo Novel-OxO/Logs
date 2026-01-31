@@ -67,10 +67,10 @@ export function TableOfContents({ toc }: TableOfContentsProps) {
       <p className="mb-4 text-lg font-medium">On This Page</p>
       <div className="border-border/50 relative border-l">
         <ul className="m-0 list-none">
-          {toc.map((item) => {
+          {toc.map((item, index) => {
             const isActive = item.url === `#${activeId}`;
             return (
-              <li key={item.url} className="mt-0 pt-0">
+              <li key={`${item.url}-${index}`} className="mt-0 pt-0">
                 <a
                   href={item.url}
                   className={cn(
@@ -84,10 +84,10 @@ export function TableOfContents({ toc }: TableOfContentsProps) {
                 </a>
                 {item.items && item.items.length > 0 && (
                   <ul className="m-0 list-none">
-                    {item.items.map((subItem) => {
+                    {item.items.map((subItem, subIndex) => {
                       const isSubActive = subItem.url === `#${activeId}`;
                       return (
-                        <li key={subItem.url} className="mt-0 pt-0">
+                        <li key={`${subItem.url}-${subIndex}`} className="mt-0 pt-0">
                           <a
                             href={subItem.url}
                             className={cn(
