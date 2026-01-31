@@ -80,7 +80,7 @@
   --sidebar-accent-foreground: #111111;
   --sidebar-border: #e4e4e7;
   --sidebar-ring: #ffb400;
-  --spotlight-color: rgba(0, 0, 0, 0.02);
+  --spotlight-color: rgba(255, 180, 0, 0.15);
 }
 
 .dark {
@@ -115,7 +115,7 @@
   --sidebar-accent-foreground: #ffb400;
   --sidebar-border: #333333;
   --sidebar-ring: #ffb400;
-  --spotlight-color: rgba(255, 255, 255, 0.1);
+  --spotlight-color: rgba(255, 180, 0, 0.2);
 }
 
 @layer base {
@@ -124,6 +124,22 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@layer utilities {
+  .animate-border-beam {
+    animation: spin 4s linear infinite;
+    background: conic-gradient(from 0deg, transparent 0 300deg, #ffb400 360deg);
   }
 }
 

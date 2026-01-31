@@ -1,11 +1,21 @@
-import dayjs from 'dayjs';
-import Link from 'next/link';
+import { PostList } from '@/components/post-list';
 import { getAllPosts } from '@/lib/get-posts';
 
 export const revalidate = 3600;
 
 export default async function HomePage() {
   const posts = await getAllPosts();
+
+  // Transform posts to match PostList interface
+  const transformedPosts = posts.map((post) => ({
+    slug: post.slug,
+    title: post.title,
+    description: post.description || undefined,
+    date: post.date || new Date().toISOString().split('T')[0],
+    url: `/posts/${post.slug}`,
+    category: post.category || undefined,
+    thumbnail: post.thumbnail || undefined,
+  }));
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-8">
@@ -20,49 +30,7 @@ export default async function HomePage() {
         {posts.length === 0 ? (
           <p className="text-muted-foreground">아직 게시된 글이 없습니다.</p>
         ) : (
-          <ul className="space-y-6">
-            {posts.map((post) => (
-              <li key={post.id}>
-                <Link
-                  href={`/posts/${post.slug}`}
-                  className="group block rounded-lg border p-6 transition-colors hover:bg-muted/50"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">
-                        {post.title}
-                      </h3>
-                      {post.description && (
-                        <p className="mt-2 text-muted-foreground line-clamp-2">
-                          {post.description}
-                        </p>
-                      )}
-                      <div className="mt-3 flex items-center gap-3 text-sm text-muted-foreground">
-                        {post.category && (
-                          <span className="rounded-full bg-muted px-2.5 py-0.5">
-                            {post.category}
-                          </span>
-                        )}
-                        {post.date && (
-                          <time dateTime={post.date}>{dayjs(post.date).format('YYYY.MM.DD')}</time>
-                        )}
-                      </div>
-                    </div>
-                    {post.thumbnail && (
-                      <div className="hidden sm:block flex-shrink-0">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={post.thumbnail}
-                          alt={post.title}
-                          className="h-24 w-36 rounded-lg object-cover"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <PostList posts={transformedPosts} />
         )}
       </section>
     </div>

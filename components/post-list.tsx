@@ -45,8 +45,8 @@ export function PostList({ posts }: PostListProps) {
     >
       {posts.map((post) => (
         <motion.div key={post.slug} variants={item} className="h-full">
-          <SpotlightCard className="flex h-full flex-col border-neutral-200 bg-white dark:border-neutral-800 dark:bg-[#1C1C1F]">
-            <Link href={post.url} className="group flex h-full flex-col">
+          <SpotlightCard className="group flex h-full flex-col border-neutral-200 bg-white dark:border-neutral-800 dark:bg-[#1C1C1F]">
+            <Link href={post.url} className="flex h-full flex-col">
               {/* Image Section */}
               <div className="p-2 pb-0">
                 <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-neutral-100 shadow-sm dark:border-neutral-800">
