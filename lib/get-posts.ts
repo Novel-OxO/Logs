@@ -1,17 +1,16 @@
+import type { PageObjectResponse, RichTextItemResponse } from '@notionhq/client';
 import { getDataSourceId, notion } from './notion-official';
 import type { PostMeta } from './post-types';
 
-// biome-ignore lint/suspicious/noExplicitAny: Notion API response types are complex and dynamic
-
-function getRichTextContent(richText: any[]): string {
-  return richText.map((text: any) => text.plain_text).join('');
+function getRichTextContent(richText: RichTextItemResponse[]): string {
+  return richText.map((text) => text.plain_text).join('');
 }
 
-function getPropertyValue(page: any, propertyName: string): string | null {
+function getPropertyValue(page: PageObjectResponse, propertyName: string): string | null {
   const property = page.properties[propertyName];
   if (!property) return null;
 
-  switch ((property as any).type) {
+  switch (property.type) {
     case 'title':
       return getRichTextContent(property.title);
     case 'rich_text':
@@ -40,7 +39,7 @@ function getPropertyValue(page: any, propertyName: string): string | null {
   }
 }
 
-function pageToPostMeta(page: any): PostMeta {
+function pageToPostMeta(page: PageObjectResponse): PostMeta {
   return {
     id: page.id,
     title: getPropertyValue(page, 'title') ?? 'Untitled',
@@ -83,7 +82,9 @@ export async function getAllPosts(
     ],
   });
 
-  const posts = response.results.filter((page: any) => 'properties' in page).map(pageToPostMeta);
+  const posts = response.results
+    .filter((page): page is PageObjectResponse => 'properties' in page)
+    .map(pageToPostMeta);
 
   return posts;
 }
@@ -111,7 +112,7 @@ export async function getPostBySlug(slug: string): Promise<PostMeta | null> {
     return null;
   }
 
-  return pageToPostMeta(page as any);
+  return pageToPostMeta(page as PageObjectResponse);
 }
 
 export async function getPostById(pageId: string): Promise<PostMeta | null> {
@@ -125,7 +126,7 @@ export async function getPostById(pageId: string): Promise<PostMeta | null> {
     if (!('properties' in page)) {
       return null;
     }
-    return pageToPostMeta(page as any);
+    return pageToPostMeta(page as PageObjectResponse);
   } catch {
     return null;
   }

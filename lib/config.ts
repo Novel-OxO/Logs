@@ -16,8 +16,6 @@ export const twitter: string | undefined = getSiteConfig('twitter');
 export const github: string | undefined = getSiteConfig('github');
 export const linkedin: string | undefined = getSiteConfig('linkedin');
 
-export const isServer = typeof window === 'undefined';
-
 export const port = getEnv('PORT', '3000');
 export const host = isDev ? `http://localhost:${port}` : `https://${domain}`;
 

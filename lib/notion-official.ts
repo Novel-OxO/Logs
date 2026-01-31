@@ -24,10 +24,10 @@ export async function getDataSourceId(): Promise<string> {
     throw new Error('Notion client or database ID not configured');
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: Notion API response types
-  const db: any = await notion.databases.retrieve({ database_id: databaseId });
+  // DatabaseObjectResponse 타입으로 자동 추론됨
+  const db = await notion.databases.retrieve({ database_id: databaseId });
 
-  if (!db.data_sources || db.data_sources.length === 0) {
+  if (!('data_sources' in db) || !db.data_sources || db.data_sources.length === 0) {
     throw new Error('No data sources found for database');
   }
 

@@ -4,11 +4,3 @@ export interface Site {
   description?: string;
   image?: string;
 }
-
-export interface PageUrlOverridesMap {
-  [pagePath: string]: string;
-}
-
-export interface PageUrlOverridesInverseMap {
-  [pageId: string]: string;
-}

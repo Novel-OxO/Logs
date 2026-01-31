@@ -1,7 +1,11 @@
+import type {
+  BlockObjectResponse,
+  PartialBlockObjectResponse,
+  RichTextItemResponse,
+} from '@notionhq/client';
 import { notion } from './notion-official';
 
-// biome-ignore lint/suspicious/noExplicitAny: Notion API block types are dynamic
-type Block = any;
+type Block = BlockObjectResponse | PartialBlockObjectResponse;
 
 export async function getPageBlocks(pageId: string): Promise<Block[]> {
   if (!notion) {
@@ -19,7 +23,9 @@ export async function getPageBlocks(pageId: string): Promise<Block[]> {
       page_size: 100,
     });
 
-    blocks.push(...response.results);
+    blocks.push(
+      ...response.results.filter((block): block is BlockObjectResponse => 'type' in block),
+    );
     cursor = response.has_more ? (response.next_cursor ?? undefined) : undefined;
   } while (cursor);
 
@@ -30,21 +36,11 @@ async function getBlockChildren(blockId: string): Promise<Block[]> {
   return getPageBlocks(blockId);
 }
 
-function escapeMarkdown(text: string): string {
-  return text
-    .replace(/\\/g, '\\\\')
-    .replace(/`/g, '\\`')
-    .replace(/\*/g, '\\*')
-    .replace(/_/g, '\\_')
-    .replace(/\[/g, '\\[')
-    .replace(/\]/g, '\\]');
-}
-
-function richTextToMarkdown(richText: any[]): string {
+function richTextToMarkdown(richText: RichTextItemResponse[]): string {
   if (!richText || richText.length === 0) return '';
 
   return richText
-    .map((text: any) => {
+    .map((text) => {
       let content = text.plain_text || '';
 
       if (text.annotations) {
@@ -76,6 +72,11 @@ function richTextToMarkdown(richText: any[]): string {
 
 async function blockToMarkdown(block: Block, indent = 0): Promise<string> {
   const indentStr = '  '.repeat(indent);
+
+  if (!('type' in block)) {
+    return '';
+  }
+
   const type = block.type;
 
   switch (type) {
@@ -140,7 +141,7 @@ async function blockToMarkdown(block: Block, indent = 0): Promise<string> {
       return `${indentStr}> ${richTextToMarkdown(block.quote.rich_text)}\n`;
 
     case 'callout': {
-      const icon = block.callout.icon?.emoji || '💡';
+      const icon = block.callout.icon?.type === 'emoji' ? block.callout.icon.emoji : '💡';
       const text = richTextToMarkdown(block.callout.rich_text);
       return `${indentStr}<Callout icon="${icon}">\n${indentStr}${text}\n${indentStr}</Callout>\n`;
     }
@@ -185,9 +186,9 @@ async function blockToMarkdown(block: Block, indent = 0): Promise<string> {
 
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
-        if (row.type !== 'table_row') continue;
+        if (!('type' in row) || row.type !== 'table_row') continue;
 
-        const cells = row.table_row.cells.map((cell: any) => richTextToMarkdown(cell));
+        const cells = row.table_row.cells.map((cell) => richTextToMarkdown(cell));
         table += `| ${cells.join(' | ')} |\n`;
 
         if (i === 0) {
@@ -203,11 +204,13 @@ async function blockToMarkdown(block: Block, indent = 0): Promise<string> {
       let content = '<div className="grid grid-cols-2 gap-4">\n';
       for (const column of columns) {
         content += '<div>\n';
-        if (column.has_children) {
-          const columnChildren = await getBlockChildren(column.id);
-          for (const child of columnChildren) {
-            content += await blockToMarkdown(child);
-          }
+        if (!('has_children' in column) || !column.has_children) {
+          content += '</div>\n';
+          continue;
+        }
+        const columnChildren = await getBlockChildren(column.id);
+        for (const child of columnChildren) {
+          content += await blockToMarkdown(child);
         }
         content += '</div>\n';
       }
@@ -223,7 +226,7 @@ async function blockToMarkdown(block: Block, indent = 0): Promise<string> {
       return '';
 
     default:
-      console.warn(`Unsupported block type: ${type}`);
+      console.warn(`Unsupported block type: $type`);
       return '';
   }
 }
