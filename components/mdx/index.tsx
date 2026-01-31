@@ -3,6 +3,7 @@
 import type { MDXComponents } from 'mdx/types';
 import Image from 'next/image';
 import { Children, isValidElement, type ReactNode } from 'react';
+import { CodeBlock } from '@/components/code-block';
 import { Bookmark, Embed, LinkPreview } from './bookmark';
 import { Callout } from './callout';
 import { Video } from './video';
@@ -84,9 +85,7 @@ export const mdxComponents: MDXComponents = {
     }
     return <code className={className}>{children}</code>;
   },
-  pre: ({ children }) => (
-    <pre className="my-4 overflow-x-auto rounded-lg bg-muted p-4">{children}</pre>
-  ),
+  pre: (props) => <CodeBlock {...props} />,
   img: MdxImage,
   table: ({ children }) => (
     <div className="my-4 overflow-x-auto">

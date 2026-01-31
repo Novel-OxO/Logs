@@ -25,7 +25,7 @@ export function CodeBlock({ children, className, ...props }: React.HTMLAttribute
     <div className="group relative mb-4">
       <pre
         ref={preRef}
-        className={cn('bg-muted overflow-x-auto rounded-lg border p-4', className)}
+        className={cn('overflow-x-auto rounded-lg border p-4', className)}
         {...props}
       >
         {children}

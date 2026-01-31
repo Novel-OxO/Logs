@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import { notFound } from 'next/navigation';
 import { serialize } from 'next-mdx-remote/serialize';
+import rehypePrettyCode from 'rehype-pretty-code';
 import { MdxRenderer } from '@/components/mdx/mdx-renderer';
 import { getAllPosts, getPostBySlug } from '@/lib/get-posts';
 import { getPostContent } from '@/lib/notion-to-mdx';
@@ -45,7 +46,21 @@ export default async function PostPage({ params }: PageProps) {
   }
 
   const content = await getPostContent(post.id);
-  const mdxSource = await serialize(content);
+  const mdxSource = await serialize(content, {
+    mdxOptions: {
+      rehypePlugins: [
+        [
+          rehypePrettyCode,
+          {
+            theme: {
+              dark: 'github-dark',
+              light: 'github-light',
+            },
+          },
+        ],
+      ],
+    },
+  });
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-8">
